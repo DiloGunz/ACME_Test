@@ -1,18 +1,25 @@
 ﻿using ACME.CourseManagement.Service.Domain.Helpers;
+using System.Reflection;
 
 namespace ACME.CourseManagement.UnitTest.Generic;
 
+/// <summary>
+/// Pruebas unitarias para la clase <see cref="SnowflakeIdGenerator"/>.
+/// </summary>
 public class SnowflakeIdGeneratorTests
 {
     private readonly SnowflakeIdGenerator _generator;
 
+    /// <summary>
+    /// Inicializa una nueva instancia de <see cref="SnowflakeIdGeneratorTests"/> con valores predeterminados.
+    /// </summary>
     public SnowflakeIdGeneratorTests()
     {
         _generator = new SnowflakeIdGenerator(workerId: 1, datacenterId: 1);
     }
 
     /// <summary>
-    /// Verifica que el constructor lance una excepción cuando el WorkerId es inválido.
+    /// Verifica que el constructor lance una excepción si el Worker ID es inválido.
     /// </summary>
     [Fact]
     public void Constructor_Should_Throw_Exception_When_WorkerId_Is_Invalid()
@@ -22,7 +29,7 @@ public class SnowflakeIdGeneratorTests
     }
 
     /// <summary>
-    /// Verifica que el constructor lance una excepción cuando el DatacenterId es inválido.
+    /// Verifica que el constructor lance una excepción si el Datacenter ID es inválido.
     /// </summary>
     [Fact]
     public void Constructor_Should_Throw_Exception_When_DatacenterId_Is_Invalid()
@@ -32,7 +39,7 @@ public class SnowflakeIdGeneratorTests
     }
 
     /// <summary>
-    /// Verifica que los IDs generados sean únicos.
+    /// Verifica que <see cref="SnowflakeIdGenerator.NextId"/> genere identificadores únicos.
     /// </summary>
     [Fact]
     public void NextId_Should_Generate_Unique_Ids()
@@ -47,7 +54,7 @@ public class SnowflakeIdGeneratorTests
     }
 
     /// <summary>
-    /// Verifica que se lance una excepción si el reloj del sistema retrocede.
+    /// Verifica que <see cref="SnowflakeIdGenerator.NextId"/> lance una excepción si el reloj retrocede.
     /// </summary>
     [Fact]
     public void NextId_Should_Throw_Exception_If_Clock_Moves_Backwards()
@@ -58,7 +65,7 @@ public class SnowflakeIdGeneratorTests
 
         // Simula un caso donde el reloj retrocede
         typeof(SnowflakeIdGenerator)
-            .GetField("_lastTimestamp", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            .GetField("_lastTimestamp", BindingFlags.NonPublic | BindingFlags.Instance)
             .SetValue(generator, long.MaxValue);
 
         Action act = () => generator.NextId();
@@ -66,7 +73,7 @@ public class SnowflakeIdGeneratorTests
     }
 
     /// <summary>
-    /// Verifica que la generación de IDs funcione correctamente en concurrencia.
+    /// Verifica que <see cref="SnowflakeIdGenerator.NextId"/> funcione correctamente en un entorno concurrente.
     /// </summary>
     [Fact]
     public void NextId_Should_Work_Concurrently()

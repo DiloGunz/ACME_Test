@@ -13,17 +13,14 @@ public class ValidationBehaviorTests
     [Fact]
     public async Task Handle_NoValidator_ShouldProceed()
     {
-        // Arrange
         var request = new TestRequest();
         var nextMock = new Mock<RequestHandlerDelegate<ErrorOr<TestResponse>>>();
         nextMock.Setup(n => n()).ReturnsAsync(new TestResponse());
 
         var behavior = new ValidationBehavior<TestRequest, ErrorOr<TestResponse>>(null);
 
-        // Act
         var result = await behavior.Handle(request, nextMock.Object, CancellationToken.None);
 
-        // Assert
         result.IsError.Should().BeFalse();
         result.Value.Should().BeOfType<TestResponse>();
         nextMock.Verify(n => n(), Times.Once);
@@ -35,7 +32,6 @@ public class ValidationBehaviorTests
     [Fact]
     public async Task Handle_ValidRequest_ShouldProceed()
     {
-        // Arrange
         var request = new TestRequest();
         var validatorMock = new Mock<IValidator<TestRequest>>();
         validatorMock.Setup(v => v.ValidateAsync(request, It.IsAny<CancellationToken>()))
@@ -46,10 +42,8 @@ public class ValidationBehaviorTests
 
         var behavior = new ValidationBehavior<TestRequest, ErrorOr<TestResponse>>(validatorMock.Object);
 
-        // Act
         var result = await behavior.Handle(request, nextMock.Object, CancellationToken.None);
 
-        // Assert
         result.IsError.Should().BeFalse();
         result.Value.Should().BeOfType<TestResponse>();
         nextMock.Verify(n => n(), Times.Once);
@@ -61,7 +55,6 @@ public class ValidationBehaviorTests
     [Fact]
     public async Task Handle_InvalidRequest_ShouldReturnValidationErrors()
     {
-        // Arrange
         var request = new TestRequest();
         var errors = new List<ValidationFailure>
         {
@@ -77,15 +70,13 @@ public class ValidationBehaviorTests
 
         var behavior = new ValidationBehavior<TestRequest, ErrorOr<TestResponse>>(validatorMock.Object);
 
-        // Act
         var result = await behavior.Handle(request, nextMock.Object, CancellationToken.None);
 
-        // Assert
         result.IsError.Should().BeTrue();
-        //result.ErrorsOrEmpty.Should().HaveCount(2);
-        //result.ErrorsOrEmpty.First().Code.Should().Be("Validation");
-        //result.ErrorsOrEmpty.First().Description.Should().Be("Error message 1");
-        //result.ErrorsOrEmpty.Last().Description.Should().Be("Error message 2");
+        result.ErrorsOrEmptyList.Should().HaveCount(2);
+        result.ErrorsOrEmptyList.First().Code.Should().Be("Property1");
+        result.ErrorsOrEmptyList.First().Description.Should().Be("Error message 1");
+        result.ErrorsOrEmptyList.Last().Description.Should().Be("Error message 2");
 
         nextMock.Verify(n => n(), Times.Never);
     }

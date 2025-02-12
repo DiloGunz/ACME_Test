@@ -41,7 +41,7 @@ La estructura principal del proyecto es:
 
 ## Pruebas
 
-Se han implementado pruebas unitarias usando **xUnit.net**, cubriendo los casos principales.
+Se han implementado pruebas unitarias usando **xUnit.net**, cubriendo los casos principales con una cobertura de código superior al 80% (según Visual Studio).
 
 ## Consideraciones y Mejoras Futuras
 
@@ -51,12 +51,13 @@ Se han implementado pruebas unitarias usando **xUnit.net**, cubriendo los casos 
 - Integración con una pasarela de pagos real.
 - Agregar Auditoría de tablas con campos como CreatedAt, CreatedBy, UpdateAt, UpdatedBy.
 - Manejar excepciones de forma global con un Middleware por ejemplo.
-- Generar UnitTest de métodos faltantes incluyendo excepciones por parametros nulos en constructores.
+- Generar UnitTest de métodos faltantes, incluyendo excepciones por parametros nulos en constructores.
 - Comentar el código faltante para que sea más comprensible para los desarrolladores.
 
 ### Mejoras Potenciales:
 - Optimización de consultas para grandes volúmenes de datos.
 - Implementación de event sourcing para auditoría de cambios.
+- Para mejorar la auditoría y la gestión de datos en la aplicación, se recomienda la implementación de Soft Delete en lugar de la eliminación física de registros
 
 ## Tiempo y Aprendizajes
 

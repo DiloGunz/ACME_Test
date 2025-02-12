@@ -1,40 +1,44 @@
 ﻿namespace ACME.CourseManagement.Service.Domain.DomainErrors;
+
+/// <summary>
+/// Contiene definiciones de errores específicos para distintas entidades del sistema.
+/// </summary>
 public static partial class Errors
 {
     /// <summary>
-    /// Mensajes de error correspondientes a la entidad Student
-    /// Para retornar los mensajes se usa ErrorOr.
+    /// Contiene errores relacionados con la entidad <see cref="Student"/>.
+    /// Para retornar los mensajes se usa <c>ErrorOr</c>.
     /// </summary>
     public static class Student
     {
         /// <summary>
-        /// Error cuando el id del estudiante no existe
+        /// Error que indica que el ID del estudiante no existe.
         /// </summary>
         public static Error IdNotFound =>
             Error.Conflict("Student.Id", "El ID ingresado no existe.");
 
         /// <summary>
-        /// Error cuando el estudiante no es adulto
+        /// Error que indica que la edad del estudiante no es válida (debe ser mayor de 18 años).
         /// </summary>
         public static Error AgeNotValid =>
             Error.Validation("Student.Age", "La edad no es válida. Debe ser mayor de 18 años.");
 
         /// <summary>
-        /// Error que muestra cuando el número de documento ingresado ya existe
+        /// Error que indica que el número de documento ya existe en el sistema.
         /// </summary>
         public static Error AlreadyExistDocumentNumber =>
-            Error.Conflict("Student.Documentnumber", "El número de documento ingresado ya existe.");
+            Error.Conflict("Student.DocumentNumber", "El número de documento ingresado ya existe.");
 
         /// <summary>
-        /// Error cuando el numero de documento ingresado no existe
+        /// Error que indica que no se encontró ningún estudiante con el número de documento ingresado.
         /// </summary>
         public static Error NotExistDocumentNumber =>
-            Error.NotFound("Student.NotFound", "No se encontró ningun estudiante con el número de documento ingresado.");
+            Error.NotFound("Student.NotFound", "No se encontró ningún estudiante con el número de documento ingresado.");
 
         /// <summary>
-        /// Error cuando el numero de documento ingresado no existe
+        /// Error que indica que no se encontraron estudiantes con los identificadores proporcionados.
         /// </summary>
         public static Error NotRecordsFoundByManyIds =>
-            Error.NotFound("Student.FindByManyIds", "No se encontró estudiantes por medio de los Ids ingresados.");
+            Error.NotFound("Student.FindByManyIds", "No se encontraron estudiantes con los identificadores ingresados.");
     }
 }

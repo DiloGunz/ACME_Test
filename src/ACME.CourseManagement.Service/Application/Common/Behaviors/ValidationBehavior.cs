@@ -49,7 +49,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         var errors = validationResult.Errors.ConvertAll(
             failure => Error.Validation(failure.PropertyName, failure.ErrorMessage));
 
-        // Retorna los errores como una respuesta de tipo ErrorOr<TResponse>.
+        // Retorna los errores como una respuesta.
         return (dynamic)errors;
     }
 }

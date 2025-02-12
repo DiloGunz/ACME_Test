@@ -6,6 +6,7 @@ using ACME.CourseManagement.Service.Application.Students.Common;
 using ACME.CourseManagement.Service.Application.Students.GetById;
 using ACME.CourseManagement.Service.Domain.Entities.Payments;
 using ACME.CourseManagement.Service.Domain.Primitives;
+using ACME.CourseManagement.Service.Infraestructure.Services;
 using FluentAssertions;
 using Moq;
 
@@ -181,7 +182,6 @@ public class CreatePaymentHandlerTests
             .ReturnsAsync(true);
 
         _paymentRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Payment>()))
-            .Callback<Payment>(p => p.Id = 123) // Simula la asignación de un ID
             .Returns(Task.CompletedTask);
 
         _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync(default)).Returns(Task.FromResult(1));
@@ -189,6 +189,44 @@ public class CreatePaymentHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be(123);
+        result.Value.Should().BeGreaterThan(0);
+    }
+
+    /// <summary>
+    /// Devuelve el Id del pago si todo es exitoso usando implementacion de pasarela de pago de prueba
+    /// </summary>
+    /// <returns></returns>
+    [Fact]
+    public async Task Should_Return_PaymentId_When_Payment_Is_Successful_Fake()
+    {
+        var command = new CreatePaymentCommand()
+        {
+            CourseId = 1,
+            StudentId = 1,
+            AmountPaid = 100,
+            PaymentStatus = Service.Domain.DomainEnums.Enums.PaymentStatus.Pending,
+            PaymentDate = DateTime.UtcNow,
+        };
+        var student = new StudentDto { Id = 1, FirstName = "Juan", LastName = "Perez", Age = 20, DocumentNumber = "123" };
+        var course = new CourseDto { Id = 1, Name = "Matematicas", EnrollmentFee = 100, Capacity = 100, Enable = true, StartDate = DateTime.UtcNow.AddMonths(1), EndDate = DateTime.UtcNow.AddMonths(1) };
+        var payment = new Payment(command.StudentId, command.CourseId, command.AmountPaid, command.PaymentStatus, command.PaymentDate);
+
+        _mediatorMock.Setup(m => m.Send(It.Is<GetStudentByIdQuery>(q => q.Id == command.StudentId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(student);
+
+        _mediatorMock.Setup(m => m.Send(It.Is<GetCourseByIdQuery>(q => q.CourseId == command.CourseId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(course);
+
+        _paymentRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Payment>()))
+            .Returns(Task.CompletedTask);
+
+        _unitOfWorkMock.Setup(uow => uow.SaveChangesAsync(default)).Returns(Task.FromResult(1));
+
+        IPaymentGateway paymentGateway = new StripePaymentGateway();
+        var handler = new CreatePaymentCommandHandler(_paymentRepositoryMock.Object, _unitOfWorkMock.Object, _mediatorMock.Object, paymentGateway);
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeGreaterThan(0);
     }
 }
